@@ -1,10 +1,85 @@
 <html>
 	<head>
+		<meta charset="utf-8">
 		<title>{{title}}- tasks</title>
+		<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
 	</head>
 
 	<body>
-		<h1>Tasks</h1>
-		<h1>{{user.name}}</h1>
+		<div class="dropdown" style="margin-left: 10;margin-top: 10">
+			<button type="button" class="btn dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown">科目
+	        	<span class="caret"></span>
+		    </button>
+		   <button class="btn-primary" data-toggle="modal" data-target="#new_window">
+    		新建科目
+    	   </button>
+		    <ul class="dropdown-menu fts-menu-content" role="menu" aria-labelledby="dropdownMenu1">
+		        {% for subject in subjects %}
+		        <li role="presentation">
+		            <a role="menuitem" tabindex="-1" href="#">{{subject.name}}</a>
+		        </li>
+		        {% endfor %}
+		    </ul>
+		</div>
+		<div style="margin-top: 10">
+			<ul class="list-group">
+			    <li class="list-group-item">免费域名注册</li>
+			    <li class="list-group-item">免费 Window 空间托管</li>
+			    <li class="list-group-item">图像的数量</li>
+			    <li class="list-group-item">24*7 支持</li>
+			    <li class="list-group-item">每年更新成本</li>
+			</ul>
+		</div>
+
+		<div class="modal fade" id="new_window" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+							&times;
+						</button>
+						<h4 class="modal-title" id="myModalLabel">
+							新建科目
+						</h4>
+					</div>
+					<div class="input-group">
+			            <input id="content" type="text" class="form-control" placeholder="请输入要建的科目" style="width: 500">
+			        </div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal">关闭
+						</button>
+						<button type="button" id="commit" class="commit" data-dismiss="modal">
+							提交
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</body>
+	<script type="text/javascript">
+
+		$(function () {
+	        $(".fts-menu-content li a").click(function () {
+	            $(".btn").text($(this).text());
+	        });
+    	});
+
+		$(function () {
+			$(".commit").click(function () {
+				console.log($("#content").val())
+				$.post("http://localhost:8081/todo/api/v1.0/add_project",{
+					name:"菜鸟教程",
+					url:"http://www.runoob.com"
+				}
+			})；
+	});
+	</script>
+	<script type="text/javascript">
+		$(function() {
+			    $('#new_window').modal('hide')
+			});
+	</script>
 </html>
