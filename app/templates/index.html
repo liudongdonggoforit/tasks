@@ -19,21 +19,19 @@
     	   <button class="btn-primary" data-toggle="modal" data-target="#task_window">
     		新建任务
     	   </button>
-		    <ul class="dropdown-menu fts-menu-content" role="menu" aria-labelledby="dropdownMenu1">
+		    <ul id="sudject_list" class="dropdown-menu fts-menu-content" role="menu" aria-labelledby="dropdownMenu1">
 		        {% for subject in subjects %}
 		        <li role="presentation">
-		            <a role="menuitem" tabindex="-1" href="#">{{subject.name}}</a>
+		            <a id="{{subject.id}}" role="menuitem" tabindex="-1" href="#">{{subject.name}}</a>
 		        </li>
 		        {% endfor %}
 		    </ul>
 		</div>
 		<div style="margin-top: 10">
-			<ul class="list-group">
-			    <li class="list-group-item">免费域名注册</li>
-			    <li class="list-group-item">免费 Window 空间托管</li>
-			    <li class="list-group-item">图像的数量</li>
-			    <li class="list-group-item">24*7 支持</li>
-			    <li class="list-group-item">每年更新成本</li>
+			<ul id="task_list" class="list-group">
+			    {% for task in tasks %}
+			    <li class="list-group-item">{{task.title}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>{{task.content}}</span></li>
+			    {% endfor %}
 			</ul>
 		</div>
 		<!-- 新建科目 -->
@@ -54,7 +52,7 @@
 					<div class="modal-footer">
 						<button type="button" data-dismiss="modal">关闭
 						</button>
-						<button type="button" id="commit" class="commit" data-dismiss="modal">
+						<button type="button" id="commit_subject" class="commit_subject" data-dismiss="modal">
 							提交
 						</button>
 					</div>
@@ -75,12 +73,18 @@
 						</h4>
 					</div>
 					<div class="input-group">
-			            <input id="content" type="text" class="form-control" placeholder="请输入要建的任务" style="width: 500">
+			            <input id="task_title" type="text" class="form-control" placeholder="请输入任务标题" style="width: 500">
+			        </div>
+			        <div class="input-group">
+			            <input id="task_content" type="text" class="form-control" placeholder="请输入任务内容" style="width: 500; min-height: 100">
+			        </div>
+			        <div class="input-group">
+			            <input id="task_des" type="text" class="form-control" placeholder="请输入任务描述" style="width: 500; min-height: 100">
 			        </div>
 					<div class="modal-footer">
 						<button type="button" data-dismiss="modal">关闭
 						</button>
-						<button type="button" id="commit" class="commit" data-dismiss="modal">
+						<button type="button" id="commit_task" class="commit_task" data-dismiss="modal">
 							提交
 						</button>
 					</div>
@@ -90,20 +94,46 @@
 	</body>
 	<script type="text/javascript">
 
+		var subject_id = 0;
+
 		//选中科目事件
 		$(function () {
 	        $(".fts-menu-content li a").click(function () {
 	            $(".btn").text($(this).text());
+	            subject_id = $(this).attr("id")
+	            console.log($(this).attr("id"))
+
+	            url = "http://localhost:5000/todo/api/v1.0/tasks_by_sid?subject_id=" + subject_id
+	            $.get(url,function(result, status) {
+	            	if ("success" == status) {
+	            		console.log(result)
+	            		var parentUl = document.getElementById("task_list")
+	            		parentUl.innerHTML=''
+	            		for (var i = 0; i < result.length; i++){
+	            			task = result[i]
+	            			var li = document.createElement("li")
+	            			li.className = "list-group-item"
+	            			li.innerHTML = task.title + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+	            			var span = document.createElement("span")
+	            			span.innerHTML = task.content
+	            			li.appendChild(span)
+	            			console.log(result)
+	            			parentUl.appendChild(li)
+	            		}
+	            	} else{
+	            		console.log(status)
+	            	}
+	            }, "json");
 	        });
     	});
 
 		//添加新科目
 		$(function () {
-			$(".commit").click(function () {
+			$(".commit_subject").click(function () {
 				console.log($("#content").val())
 
-				url = "http://localhost:5000/todo/api/v1.0/add_project";
-				data = {'project':$("#content").val()}
+				url = "http://localhost:5000/todo/api/v1.0/add_subject";
+				data = {'subject':$("#content").val()}
 
 				$.post(url,data,function(result, status){
 					if ('success' == status) {
@@ -131,7 +161,28 @@
 			});
 		});
 
+		//添加科目任务
+		$(function() {
+			$(".commit_task").click(function() {
+				console.log("commit_task")
 
+				url = "http://localhost:5000/todo/api/v1.0/add_task"
+				data = {
+					"project_id":subject_id,
+					"title":$("#task_title").val(),
+					"content":$("#task_content").val(),
+					"des":$("#task_des").val()
+				}
+
+				$.post(url,data,function(result, status) {
+					if ("success" == status) {
+						console.log(result)
+					} else{
+						console.log(status)
+					}
+				}, "json")
+			});
+		});
 
 	</script>
 	<script type="text/javascript">
